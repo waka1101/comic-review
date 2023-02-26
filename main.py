@@ -38,4 +38,4 @@ def post_login(login_info: LoginBody):
 # ログイン情報登録API
 @app.post("/auth/entry")
 def post_entry(auth_info: LoginBody):
-    return {"menberID": email}
+    pass
