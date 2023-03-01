@@ -33,6 +33,20 @@ class UpdateMember(BaseModel):
     memberStatus: str
     discription: str
 
+class Comic_RegistraionBody(BaseModel):
+    comicContributorID: str
+    displayName: str
+    discription: str
+    comicPath: str
+
+class UpdateComic(BaseModel):
+    comicID: str
+    comicContributorID: str
+    comicStatus: str
+    displayName: str
+    discription: str
+    comicPath: str
+
 # ログイン認証関数
 def check_auth(login_info):
     email = login_info.email
@@ -76,7 +90,7 @@ def post_member_regi(member_info: RegistraionBody):
     discription = member_info.discription
 
     if memberID in [d.get("memberID") for d in member_list]:
-        return {"detail": "memberID has already used."}
+        return {"detail": "This memberID has already used."}
 
     member_list.append({
         "memberID": memberID,
@@ -105,4 +119,30 @@ def update_member(memberID: str, update_info: UpdateMember):
                 member_dict["discription"] = discription
 
     update_json("member", member_list)
+    return {"return_code": "success"}
+
+# 漫画投稿API
+@app.post("/comic")
+def post_comic_regi(comic_info: Comic_RegistraionBody):
+    comic_list = get_json("comic")
+    comicContributorID = comic_info.comicContributorID
+    displayName = comic_info.displayName
+    discription = comic_info.discription
+    comicPath = comic_info.comicPath
+
+    encoded_displayName = displayName.encode("utf-8")
+    decoded_displayName = encoded_displayName.decode("utf-8")
+
+    encoded_discription = discription.encode("utf-8")
+    decoded_discription = encoded_discription.decode("utf-8")
+
+    comic_list.append({
+        "comicID": str(count_id("comic")).zfill(8),
+        "comicContributorID": comicContributorID,
+        "comicStatus": "active",
+        "displayName": decoded_displayName,
+        "discription": decoded_discription,
+        "comicPath": comicPath
+    })
+    update_json("comic", comic_list)
     return {"return_code": "success"}
