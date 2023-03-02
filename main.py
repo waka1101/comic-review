@@ -121,6 +121,13 @@ def update_member(memberID: str, update_info: UpdateMember):
     update_json("member", member_list)
     return {"return_code": "success"}
 
+# 会員検索API
+@app.get("/member/{memberID}/")
+def search_memberID(memberID: str):
+    search_list = get_json("member")
+
+    return [d for d in search_list if d.get("memberID") == memberID][0]
+
 # 漫画投稿API
 @app.post("/comic")
 def post_comic_regi(comic_info: Comic_RegistraionBody):
@@ -130,19 +137,44 @@ def post_comic_regi(comic_info: Comic_RegistraionBody):
     discription = comic_info.discription
     comicPath = comic_info.comicPath
 
-    encoded_displayName = displayName.encode("utf-8")
-    decoded_displayName = encoded_displayName.decode("utf-8")
-
-    encoded_discription = discription.encode("utf-8")
-    decoded_discription = encoded_discription.decode("utf-8")
-
     comic_list.append({
         "comicID": str(count_id("comic")).zfill(8),
         "comicContributorID": comicContributorID,
         "comicStatus": "active",
-        "displayName": decoded_displayName,
-        "discription": decoded_discription,
+        "displayName": displayName,
+        "discription": discription,
         "comicPath": comicPath
     })
     update_json("comic", comic_list)
     return {"return_code": "success"}
+
+# 漫画更新API
+@app.put("/comic/{comicID}/")
+def update_comic(comicID: str, update_info: UpdateComic):
+    comicContributorID = update_info.comicContributorID
+    comicStatus = update_info.comicStatus
+    displayName = update_info.displayName
+    discription = update_info.discription
+    comicPath = update_info.comicPath
+    comic_list = get_json("comic")
+
+    for comic_dict in comic_list:
+        if comic_dict.get("comicID") == comicID:
+            if comicStatus:
+                comic_dict["comicStatus"] = comicStatus
+            if displayName:
+                comic_dict["displayName"] = displayName
+            if discription:
+                comic_dict["discription"] = discription
+            if comicPath:
+                comic_dict["comicPath"] = comicPath
+
+    update_json("comic", comic_list)
+    return {"return_code": "success"}
+
+# 漫画検索API
+@app.get("/comic/{comicID}/")
+def search_comicID(comicID: str):
+    search_list = get_json("comic")
+
+    return [d for d in search_list if d.get("comicID") == comicID][0]
