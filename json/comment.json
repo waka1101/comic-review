@@ -1,0 +1,10 @@
+[
+    {
+        "commentID": "00000001",
+        "commentContributorID": "commentContributorID",
+        "comicID": "comicID",
+        "replyID": "rep123",
+        "commentStatus": "active",
+        "commentText": "ii\uff01\uff01"
+    }
+]

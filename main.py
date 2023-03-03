@@ -47,6 +47,20 @@ class UpdateComic(BaseModel):
     discription: str
     comicPath: str
 
+class Comment_RegistraionBody(BaseModel):
+    commentContributorID: str
+    comicID: str
+    replyID: str
+    commentText: str
+
+class UpdateComment(BaseModel):
+        commentID: str
+        commentContributorID: str
+        comicID: str
+        replyID: str
+        commentStatus: str
+        commentText: str
+
 # ログイン認証関数
 def check_auth(login_info):
     email = login_info.email
@@ -172,9 +186,50 @@ def update_comic(comicID: str, update_info: UpdateComic):
     update_json("comic", comic_list)
     return {"return_code": "success"}
 
-# 漫画検索API
+#漫画検索API
 @app.get("/comic/{comicID}/")
 def search_comicID(comicID: str):
     search_list = get_json("comic")
 
     return [d for d in search_list if d.get("comicID") == comicID][0]
+
+#コメント投稿API
+@app.post("/comment")
+def post_comment_regi(comment_info: Comment_RegistraionBody):
+    comment_list = get_json("comment")
+    commentContributorID = comment_info.commentContributorID
+    comicID = comment_info.comicID
+    replyID = comment_info.replyID
+    commentText = comment_info.commentText
+
+    comment_list.append({
+        "commentID": str(count_id("comment")).zfill(8),
+        "commentContributorID": commentContributorID,
+        "comicID": comicID,
+        "replyID": replyID,
+        "commentStatus": "active",
+        "commentText": commentText,
+    })
+    update_json("comment", comment_list)
+    return {"return_code": "success"}
+
+#コメント更新API
+@app.put("/comment/{commentID}/")
+def update_comment(comment: str, update_info: UpdateComment):
+    commentID = update_info.commentID
+    commentContributorID = update_info.commentContributorID
+    comicID = update_info.comicID
+    replyID = update_info.replyID
+    commentStatus = update_info.commentStatus
+    commentText = update_info.commentText
+    comment_list = get_json("comment")
+
+    for comment_dict in comment_list:
+        if comment_dict.get("commentID") == commentID:
+            if commentStatus:
+                comment_dict["commentStatus"] = commentStatus
+            if commentText:
+                comment_dict["commentText"] = commentText
+
+    update_json("comment", comment_list)
+    return {"return_code": "success"}
