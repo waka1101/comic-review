@@ -39,6 +39,10 @@ class Comic_RegistraionBody(BaseModel):
     discription: str
     comicPath: str
 
+class DeleteMember(BaseModel):
+    memberID: str
+    memberStatus: str
+
 class UpdateComic(BaseModel):
     comicID: str
     comicContributorID: str
@@ -136,11 +140,16 @@ def update_member(memberID: str, update_info: UpdateMember):
     return {"return_code": "success"}
 
 # 会員検索API
-@app.get("/member/{memberID}/")
-def search_memberID(memberID: str):
-    search_list = get_json("member")
-
-    return [d for d in search_list if d.get("memberID") == memberID][0]
+@app.get("/member")
+def search_memberID(memberID: str, memberID_q: str = "", memberStatus_q: str = "active"):
+    member_list = get_json("member")
+    queryPattern = {
+        "memberID": memberID_q,
+        "memberStatus": memberStatus_q
+    }
+    def isMatchQuery(member):
+        return all([value == member.get(key) for key, value in queryPattern.items() if value])
+    return [member for member in member_list if isMatchQuery(member)][0]
 
 # 漫画投稿API
 @app.post("/comic")
@@ -186,12 +195,17 @@ def update_comic(comicID: str, update_info: UpdateComic):
     update_json("comic", comic_list)
     return {"return_code": "success"}
 
-#漫画検索API
-@app.get("/comic/{comicID}/")
-def search_comicID(comicID: str):
-    search_list = get_json("comic")
-
-    return [d for d in search_list if d.get("comicID") == comicID][0]
+# 漫画検索API
+@app.get("/comic")
+def search_comicID(comicID_q: str = "", contributorID_q: str = ""):
+    comic_list = get_json("comic")
+    queryPattern = {
+        "comicID": comicID_q,
+        "contributorID": contributorID_q
+    }
+    def isMatchQuery(comic):
+        return all([value == comic.get(key) for key, value in queryPattern.items() if value])
+    return [comic for comic in comic_list if isMatchQuery(comic)]
 
 #コメント投稿API
 @app.post("/comment")
