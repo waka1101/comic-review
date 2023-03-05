@@ -199,11 +199,12 @@ def update_comic(comicID: str, update_info: UpdateComic):
 
 # 漫画検索API
 @app.get("/comic")
-def search_comicID(comicID: str = "", contributorID: str = ""):
+def search_comicID(comicID: str = "", contributorID: str = "", comicStatus: str = "active"):
     comic_list = get_json("comic")
     queryPattern = {
         "comicID": comicID,
-        "comicContributorID": contributorID
+        "comicContributorID": contributorID,
+        "comicStatus": comicStatus
     }
     print(queryPattern)
     def isMatchQuery(comic):
@@ -250,3 +251,17 @@ def update_comment(comment: str, update_info: UpdateComment):
 
     update_json("comment", comment_list)
     return {"return_code": "success"}
+
+#コメント投稿API
+@app.get("/comment")
+def search_commentID(commentID: str = "", commentContributorID: str = "", commentStatus: str = "active"):
+    comment_list = get_json("comment")
+    queryPattern = {
+        "commentID": commentID,
+        "commentContributorID": commentContributorID,
+        "commentStatus": commentStatus
+    }
+    print(queryPattern)
+    def isMatchQuery(comment):
+        return all([value == comment.get(key) for key, value in queryPattern.items() if value])
+    return [comment for comment in comment_list if isMatchQuery(comment)]
