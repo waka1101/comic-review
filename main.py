@@ -141,15 +141,17 @@ def update_member(memberID: str, update_info: UpdateMember):
 
 # 会員検索API
 @app.get("/member")
-def search_memberID(memberID: str, memberID_q: str = "", memberStatus_q: str = "active"):
+def search_memberID(memberID: str = "", memberStatus: str = "active"):
     member_list = get_json("member")
+    print(member_list)
     queryPattern = {
-        "memberID": memberID_q,
-        "memberStatus": memberStatus_q
+        "memberID": memberID,
+        "memberStatus": memberStatus
     }
+    print(memberID, memberStatus)
     def isMatchQuery(member):
         return all([value == member.get(key) for key, value in queryPattern.items() if value])
-    return [member for member in member_list if isMatchQuery(member)][0]
+    return [member for member in member_list if isMatchQuery(member)]
 
 # 漫画投稿API
 @app.post("/comic")
@@ -197,12 +199,13 @@ def update_comic(comicID: str, update_info: UpdateComic):
 
 # 漫画検索API
 @app.get("/comic")
-def search_comicID(comicID_q: str = "", contributorID_q: str = ""):
+def search_comicID(comicID: str = "", contributorID: str = ""):
     comic_list = get_json("comic")
     queryPattern = {
-        "comicID": comicID_q,
-        "contributorID": contributorID_q
+        "comicID": comicID,
+        "comicContributorID": contributorID
     }
+    print(queryPattern)
     def isMatchQuery(comic):
         return all([value == comic.get(key) for key, value in queryPattern.items() if value])
     return [comic for comic in comic_list if isMatchQuery(comic)]
