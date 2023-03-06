@@ -8,8 +8,8 @@ app = FastAPI()
 def get_json(json_type):
     return json.load(open(f"json/{json_type}.json"))
 
-def update_json(json_type, d):
-    json.dump(d, open(f"json/{json_type}.json", "w"), indent=4)
+def update_json(json_type, _json):
+    json.dump(_json, open(f"json/{json_type}.json", "w"), indent=4)
 
 def count_id(id_type):
     id_json = get_json("id")
@@ -17,6 +17,17 @@ def count_id(id_type):
     id_json[id_type] = return_id
     update_json("id", id_json)
     return return_id
+
+def update_status(json_type, id_type, id, status_type, status):
+    old_list = get_json(json_type)
+    def get_updated_content(content):
+        is_update_content = content.get(id_type) == id
+        return content | {status_type: status} if is_update_content else content
+    new_list = [get_updated_content(content) for content in old_list]
+
+    update_json(json_type, new_list)
+    return new_list
+
 
 class LoginBody(BaseModel):
     email: str
@@ -39,10 +50,6 @@ class Comic_RegistraionBody(BaseModel):
     discription: str
     comicPath: str
 
-class DeleteMember(BaseModel):
-    memberID: str
-    memberStatus: str
-
 class UpdateComic(BaseModel):
     comicID: str
     comicContributorID: str
@@ -58,12 +65,12 @@ class Comment_RegistraionBody(BaseModel):
     commentText: str
 
 class UpdateComment(BaseModel):
-        commentID: str
-        commentContributorID: str
-        comicID: str
-        replyID: str
-        commentStatus: str
-        commentText: str
+    commentID: str
+    commentContributorID: str
+    comicID: str
+    replyID: str
+    commentStatus: str
+    commentText: str
 
 # ログイン認証関数
 def check_auth(login_info):
@@ -143,15 +150,21 @@ def update_member(memberID: str, update_info: UpdateMember):
 @app.get("/member")
 def search_memberID(memberID: str = "", memberStatus: str = "active"):
     member_list = get_json("member")
-    print(member_list)
     queryPattern = {
         "memberID": memberID,
         "memberStatus": memberStatus
     }
-    print(memberID, memberStatus)
     def isMatchQuery(member):
         return all([value == member.get(key) for key, value in queryPattern.items() if value])
     return [member for member in member_list if isMatchQuery(member)]
+
+#会員状態変更API
+@app.post("/member/{memberID}/")
+def update_memberStatus(memberID: str, memberStatus: str = ""):
+    return {
+        "return_code": "success",
+        "new_member_list": update_status("member", "memberID", memberID, "memberStatus", memberStatus)
+    }
 
 # 漫画投稿API
 @app.post("/comic")
@@ -211,6 +224,14 @@ def search_comicID(comicID: str = "", contributorID: str = "", comicStatus: str 
         return all([value == comic.get(key) for key, value in queryPattern.items() if value])
     return [comic for comic in comic_list if isMatchQuery(comic)]
 
+#漫画状態変更API
+@app.post("/comic/{comicID}/")
+def update_comicStatus(comicID: str, comicStatus: str = ""):
+    return {
+        "return_code": "success",
+        "new_comic_list": update_status("comic", "comicID", comicID, "comicStatus", comicStatus)
+    }
+
 #コメント投稿API
 @app.post("/comment")
 def post_comment_regi(comment_info: Comment_RegistraionBody):
@@ -265,3 +286,12 @@ def search_commentID(commentID: str = "", commentContributorID: str = "", commen
     def isMatchQuery(comment):
         return all([value == comment.get(key) for key, value in queryPattern.items() if value])
     return [comment for comment in comment_list if isMatchQuery(comment)]
+
+#コメント状態変更API
+@app.post("/comment/{commentID}/")
+def update_commentStatus(commentID: str, commentStatus: str = ""):
+    return {
+        "return_code": "success",
+        "new_comment_list": update_status("comment", "commenID", commentID, "commentStatus", commentStatus)
+    }
+

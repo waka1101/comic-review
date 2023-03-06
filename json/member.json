@@ -1,7 +1,7 @@
 [
     {
         "memberID": "00000001",
-        "memberStatus": "active",
+        "memberStatus": "unactive",
         "displayName": "aiueo",
         "discription": "member_info.discription"
     },
@@ -10,5 +10,11 @@
         "memberStatus": "active",
         "displayName": "kaki",
         "discription": "member_info.discription"
+    },
+    {
+        "memberID": "00000003",
+        "memberStatus": "unactive",
+        "displayName": "k",
+        "discription": "no info"
     }
 ]

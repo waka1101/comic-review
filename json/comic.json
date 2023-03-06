@@ -8,15 +8,15 @@
         "comicPath": "aaa\u306e\u5de8\u4eba"
     },
     {
-        "comicID": "00000001",
-        "comicContributorID": "00000002",
+        "comicID": "00000002",
+        "comicContributorID": "00000001",
         "comicStatus": "active",
         "displayName": "\u30c9\u30e9\u3048\u3082\u3093",
         "discription": "\u9032\u6483",
         "comicPath": "aaa\u306e\u5de8\u4eba"
     },
     {
-        "comicID": "00000002",
+        "comicID": "00000003",
         "comicContributorID": "00000002",
         "comicStatus": "active",
         "displayName": "\u30c9\u30e9\u3048\u3082\u3093",
